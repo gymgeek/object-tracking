@@ -1,6 +1,14 @@
 import numpy as np
 import cv2
 import imutils
+import serial
+from serial_utils import serial_ports
+
+
+NUMBER_OF_LEDS = 90
+WIDTH = 640
+
+s = serial.Serial(serial_ports()[0], 9600)
 
 winStride = 8
 padding = 16
@@ -18,26 +26,33 @@ def draw_detections(img, rects, thickness = 1):
         # so we slightly shrink the rectangles to get a nicer output.
         pad_w, pad_h = int(0.15*w), int(0.05*h)
         cv2.rectangle(img, (x+pad_w, y+pad_h), (x+w-pad_w, y+h-pad_h), (0, 255, 0), thickness)
-	
+
+def view_on_ledstrip(rects):
+    for x, y, w, h in rects:
+        cx, cy = x + w/2, y + h/2
+        led_number = int((cx / WIDTH) * NUMBER_OF_LEDS)
+        if led_number == NUMBER_OF_LEDS:
+            led_number = NUMBER_OF_LEDS - 1
+
+        s.write(bytes(chr(led_number), "utf-8"))
 
 
+hog = cv2.HOGDescriptor()
+hog.setSVMDetector(cv2.HOGDescriptor_getDefaultPeopleDetector())
+#cap=cv2.VideoCapture('vid.avi')
+cap=cv2.VideoCapture(1)
+while True:
+    _,frame=cap.read()
 
+    frame = imutils.resize(frame, width=WIDTH)
 
-if __name__ == '__main__':
+    found,w=hog.detectMultiScale(frame, winStride=(winStride, winStride), padding=(padding,padding), scale=scale)
 
-    hog = cv2.HOGDescriptor()
-    hog.setSVMDetector( cv2.HOGDescriptor_getDefaultPeopleDetector() )
-    #cap=cv2.VideoCapture('vid.avi')
-    cap=cv2.VideoCapture(1)
-    while True:
-        _,frame=cap.read()
+    view_on_ledstrip(found)
 
-        frame = imutils.resize(frame, width=400)
-
-        found,w=hog.detectMultiScale(frame, winStride=(winStride, winStride), padding=(padding,padding), scale=scale)
-        draw_detections(frame,found)
-        cv2.imshow('feed',frame)
-        ch = 0xFF & cv2.waitKey(1)
-        if ch == 27:
-            break
-    cv2.destroyAllWindows()
+    draw_detections(frame, found)
+    cv2.imshow('feed',frame)
+    ch = 0xFF & cv2.waitKey(1)
+    if ch == 27:
+        break
+cv2.destroyAllWindows()
