@@ -17,6 +17,10 @@ Arduino in turn lights up led strip's LED diodes according to object position in
 http://www.pyimagesearch.com/2015/07/20/install-opencv-3-0-and-python-3-4-on-ubuntu/
 
 
+### Arduino
+Open ledstrip-visualizer.ino file in Arduino IDE and upload it to Arduino board. Use neopixel-type ledstrip for the visualization.
+
+
 ## Configuration
 ### WebCam seletion
 I have 2 webcams and I'm using the external one, but if you have only one webcam, you may want to change this piece of code
