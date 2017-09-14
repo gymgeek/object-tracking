@@ -8,10 +8,10 @@ import sys
 import glob
 import serial
 
-# define the lower and upper boundaries of the "green"
+# define the lower and upper boundaries of the color
 # ball in the HSV color space
-greenLower = (140, 100, 10) 
-greenUpper = (175, 255, 255)
+pinkLower = (140, 100, 10)
+pinkUpper = (175, 255, 255)
 
 
 NUMBER_OF_LEDS = 90
@@ -103,10 +103,10 @@ while True:
 	# blurred = cv2.GaussianBlur(frame, (11, 11), 0)
 	hsv = cv2.cvtColor(frame, cv2.COLOR_BGR2HSV)
 
-	# construct a mask for the color "green", then perform
+	# construct a mask for the color "pink", then perform
 	# a series of dilations and erosions to remove any small
 	# blobs left in the mask
-	mask = cv2.inRange(hsv, greenLower, greenUpper)
+	mask = cv2.inRange(hsv, pinkLower, pinkUpper)
 	mask = cv2.erode(mask, None, iterations=2)
 	mask = cv2.dilate(mask, None, iterations=2)
 
